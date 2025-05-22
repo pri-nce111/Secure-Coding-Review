@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management System - Security Review</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            background: #f8f9fa;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .vulnerability {
+            background: #ffe6e6;
+            border: 1px solid #ff4757;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .vulnerability h3 {
+            color: #c44569;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .vulnerability h3::before {
+            content: "⚠️";
+            margin-right: 10px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 4px solid #ff4757;
+        }
+
+        .secure-code {
+            background: #e6ffe6;
+            border: 1px solid #2ed573;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .secure-code h4 {
+            color: #2ed573;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .secure-code h4::before {
+            content: "✅";
+            margin-right: 10px;
+        }
+
+        .secure-code-block {
+            background: #1a202c;
+            color: #68d391;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 4px solid #2ed573;
+        }
+
+        .demo-form {
+            background: #f1f2f6;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .recommendations {
+            background: #e8f4f8;
+            border: 1px solid #3498db;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .recommendations h3 {
+            color: #2980b9;
+            margin-bottom: 15px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .recommendations li {
+            padding: 8px 0;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        .recommendations li::before {
+            content: "🔐";
+            margin-right: 10px;
+        }
+
+        .output {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .severity {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .severity.high {
+            background: #ff4757;
+            color: white;
+        }
+
+        .severity.medium {
+            background: #ffa502;
+            color: white;
+        }
+
+        .severity.low {
+            background: #2ed573;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Secure Coding Review</h1>
+            <p>User Management System - Security Vulnerability Assessment</p>
+        </div>
+
+        <div class="content">
+            <!-- XSS Vulnerability Section -->
+            <div class="section">
+                <h2>1. Cross-Site Scripting (XSS) Vulnerabilities</h2>
+                
+                <div class="vulnerability">
+                    <h3>Reflected XSS in User Input <span class="severity high">HIGH RISK</span></h3>
+                    <p><strong>Issue:</strong> User input is directly inserted into DOM without sanitization</p>
+                    
+                    <div class="code-block">
+// VULNERABLE CODE - DO NOT USE
+function displayUserProfile(username) {
+    document.getElementById('profile').innerHTML = 
+        '&lt;h3&gt;Welcome ' + username + '!&lt;/h3&gt;';
+}
+
+// This allows script injection: &lt;script&gt;alert('XSS')&lt;/script&gt;
+                    </div>
+
+                    <div class="secure-code">
+                        <h4>Secure Implementation</h4>
+                        <div class="secure-code-block">
+// SECURE CODE - Use textContent or proper sanitization
+function displayUserProfile(username) {
+    const profileElement = document.getElementById('profile');
+    const welcomeElement = document.createElement('h3');
+    welcomeElement.textContent = 'Welcome ' + sanitizeInput(username) + '!';
+    profileElement.appendChild(welcomeElement);
+}
+
+function sanitizeInput(input) {
+    const div = document.createElement('div');
+    div.textContent = input;
+    return div.innerHTML;
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SQL Injection Section -->
+            <div class="section">
+                <h2>2. Client-Side Data Validation Issues</h2>
+                
+                <div class="vulnerability">
+                    <h3>Insufficient Input Validation <span class="severity medium">MEDIUM RISK</span></h3>
+                    <p><strong>Issue:</strong> Relying only on client-side validation</p>
+                    
+                    <div class="code-block">
+// VULNERABLE CODE - Client-side only validation
+function submitUser() {
+    const email = document.getElementById('email').value;
+    if (email.includes('@')) {
+        // Send directly without server validation
+        sendToServer(email);
+    }
+}
+                    </div>
+
+                    <div class="secure-code">
+                        <h4>Secure Implementation</h4>
+                        <div class="secure-code-block">
+// SECURE CODE - Comprehensive validation
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) && email.length <= 254;
+}
+
+function submitUser() {
+    const email = document.getElementById('email').value.trim();
+    
+    // Client-side validation (UX)
+    if (!validateEmail(email)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+    
+    // Always validate on server-side too!
+    sendToServer(email);
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Form -->
+            <div class="section">
+                <h2>3. Interactive Security Demo</h2>
+                <div class="demo-form">
+                    <div class="form-group">
+                        <label for="username">Username (Try entering: &lt;script&gt;alert('XSS')&lt;/script&gt;)</label>
+                        <input type="text" id="username" placeholder="Enter username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Enter email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <textarea id="comment" rows="4" placeholder="Enter your comment"></textarea>
+                    </div>
+                    
+                    <button onclick="handleVulnerableSubmit()">Vulnerable Submit</button>
+                    <button onclick="handleSecureSubmit()" style="margin-left: 10px;">Secure Submit</button>
+                </div>
+
+                <div class="output" id="output">
+                    Output will appear here...
+                </div>
+            </div>
+
+            <!-- CSRF Section -->
+            <div class="section">
+                <h2>4. Cross-Site Request Forgery (CSRF)</h2>
+                
+                <div class="vulnerability">
+                    <h3>Missing CSRF Protection <span class="severity high">HIGH RISK</span></h3>
+                    <p><strong>Issue:</strong> Forms submitted without CSRF tokens</p>
+                    
+                    <div class="code-block">
+// VULNERABLE CODE - No CSRF protection
+function deleteUser(userId) {
+    fetch('/api/users/' + userId, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+}
+                    </div>
+
+                    <div class="secure-code">
+                        <h4>Secure Implementation</h4>
+                        <div class="secure-code-block">
+// SECURE CODE - CSRF token implementation
+function getCSRFToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
+function deleteUser(userId) {
+    fetch('/api/users/' + userId, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': getCSRFToken(),
+            'Authorization': 'Bearer ' + getAuthToken()
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Request failed');
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Operation failed');
+    });
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Local Storage Security -->
+            <div class="section">
+                <h2>5. Insecure Data Storage</h2>
+                
+                <div class="vulnerability">
+                    <h3>Sensitive Data in Local Storage <span class="severity medium">MEDIUM RISK</span></h3>
+                    <p><strong>Issue:</strong> Storing sensitive information in localStorage</p>
+                    
+                    <div class="code-block">
+// VULNERABLE CODE - Storing sensitive data
+function storeUserData(user) {
+    localStorage.setItem('userToken', user.authToken);
+    localStorage.setItem('userPassword', user.password);
+    localStorage.setItem('userData', JSON.stringify(user));
+}
+                    </div>
+
+                    <div class="secure-code">
+                        <h4>Secure Implementation</h4>
+                        <div class="secure-code-block">
+// SECURE CODE - Secure storage practices
+function storeUserData(user) {
+    // Only store non-sensitive data in localStorage
+    const publicData = {
+        username: user.username,
+        preferences: user.preferences
+    };
+    localStorage.setItem('userData', JSON.stringify(publicData));
+    
+    // Use secure httpOnly cookies for tokens (set by server)
+    // Never store passwords client-side
+    
+    // For session data, use sessionStorage with encryption if needed
+    if (user.sessionData) {
+        sessionStorage.setItem('sessionData', 
+            btoa(JSON.stringify(user.sessionData)));
+    }
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendations">
+                <h3>🛡️ Security Recommendations</h3>
+                <ul>
+                    <li>Always sanitize and validate user inputs on both client and server side</li>
+                    <li>Use Content Security Policy (CSP) headers to prevent XSS attacks</li>
+                    <li>Implement proper authentication and authorization mechanisms</li>
+                    <li>Use HTTPS for all data transmission</li>
+                    <li>Implement rate limiting to prevent brute force attacks</li>
+                    <li>Use secure session management with httpOnly cookies</li>
+                    <li>Regularly update dependencies and scan for vulnerabilities</li>
+                    <li>Implement proper error handling without information disclosure</li>
+                    <li>Use parameterized queries for database operations</li>
+                    <li>Implement logging and monitoring for security events</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Security demonstration functions
+        function handleVulnerableSubmit() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const comment = document.getElementById('comment').value;
+            
+            // VULNERABLE - Direct HTML insertion
+            document.getElementById('output').innerHTML = `
+                <h4 style="color: #ff4757;">⚠️ VULNERABLE OUTPUT:</h4>
+                <p>Username: ${username}</p>
+                <p>Email: ${email}</p>
+                <p>Comment: ${comment}</p>
+                <p style="color: #ff6b6b;">This output is vulnerable to XSS attacks!</p>
+            `;
+        }
+
+        function handleSecureSubmit() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const comment = document.getElementById('comment').value;
+            
+            // Clear previous output
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+            
+            // SECURE - Using DOM methods
+            const title = document.createElement('h4');
+            title.style.color = '#2ed573';
+            title.textContent = '✅ SECURE OUTPUT:';
+            output.appendChild(title);
+            
+            const usernamePara = document.createElement('p');
+            usernamePara.textContent = 'Username: ' + sanitizeInput(username);
+            output.appendChild(usernamePara);
+            
+            const emailPara = document.createElement('p');
+            emailPara.textContent = 'Email: ' + sanitizeInput(email);
+            output.appendChild(emailPara);
+            
+            const commentPara = document.createElement('p');
+            commentPara.textContent = 'Comment: ' + sanitizeInput(comment);
+            output.appendChild(commentPara);
+            
+            const secureNote = document.createElement('p');
+            secureNote.style.color = '#2ed573';
+            secureNote.textContent = 'This output is safely sanitized!';
+            output.appendChild(secureNote);
+            
+            // Validate email
+            if (!validateEmail(email)) {
+                const errorMsg = document.createElement('p');
+                errorMsg.style.color = '#ff4757';
+                errorMsg.textContent = 'Warning: Invalid email format detected!';
+                output.appendChild(errorMsg);
+            }
+        }
+
+        function sanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email.trim()) && email.length <= 254;
+        }
+
+        function showError(message) {
+            const output = document.getElementById('output');
+            output.innerHTML = `<p style="color: #ff4757;">Error: ${sanitizeInput(message)}</p>`;
+        }
+
+        // Simulate CSRF token (in real app, this would come from server)
+        function getCSRFToken() {
+            return 'csrf-token-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function getAuthToken() {
+            return 'auth-token-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Security headers demonstration
+        function demonstrateSecurityHeaders() {
+            console.log('Security Headers that should be implemented:');
+            console.log('Content-Security-Policy: default-src \'self\'; script-src \'self\'');
+            console.log('X-Content-Type-Options: nosniff');
+            console.log('X-Frame-Options: DENY');
+            console.log('X-XSS-Protection: 1; mode=block');
+            console.log('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+        }
+
+        // Initialize security demo
+        document.addEventListener('DOMContentLoaded', function() {
+            demonstrateSecurityHeaders();
+            
+            // Add CSP meta tag demonstration
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'csrf-token');
+            meta.setAttribute('content', getCSRFToken());
+            document.head.appendChild(meta);
+        });
+
+        // Input validation on keystroke
+        document.getElementById('email').addEventListener('input', function() {
+            const email = this.value;
+            if (email && !validateEmail(email)) {
+                this.style.borderColor = '#ff4757';
+            } else {
+                this.style.borderColor = '#2ed573';
+            }
+        });
+    </script>
+</body>
+</html>
